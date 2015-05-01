@@ -6,7 +6,7 @@ The official python client for the Namara Open Data service. [namara.io](http://
 ## Installation
 
 ```bash
-pip install namara
+git@github.com:namara-io/namara-python.git
 ```
 
 ## Usage
@@ -14,7 +14,6 @@ pip install namara
 ### Instantiation
 
 You need a valid API key in order to access Namara (you can find it in your My Account details on namara.io).
-Update config.py with your API_KEY
 
 ```python
 from namara import Namara
