@@ -1,12 +1,12 @@
 Namara
 ======
 
-The official python client for the Namara Open Data service. [namara.io](http://namara.io)
+The official python client for the Namara Open Data service. [namara.io](https://namara.io)
 
 ## Installation
 
 ```bash
-git@github.com:namara-io/namara-python.git
+pip install namara
 ```
 
 ## Usage
@@ -34,7 +34,7 @@ To make a basic request to the Namara API you can call `get` on your instantiate
 Synchronous:
 
 ```python
-response = namara.get('18b854e3-66bd-4a00-afba-8eabfc54f524', 'en-2')
+response = namara.get('5885fce0-92c4-4acb-960f-82ce5a0a4650', 'en-1')
 ```
 
 Asynchronous:
@@ -43,10 +43,10 @@ Asynchronous:
 def callback(sess, resp):
     response = resp.json()
 
-namara.get('18b854e3-66bd-4a00-afba-8eabfc54f524', 'en-2', options=None, callback)
+namara.get('5885fce0-92c4-4acb-960f-82ce5a0a4650', 'en-1', options=None, callback)
 ```
 
-Without a third options argument passed, this will return data with the Namara default offset (0) and limit (10) applied. To specify options, you can pass an options argument:
+Without a third options argument passed, this will return data with the Namara default offset (0) and limit (250) applied. To specify options, you can pass an options argument:
 
 ```python
 options = {
@@ -54,21 +54,21 @@ options = {
   'limit': 150
 };
 
-namara.get('18b854e3-66bd-4a00-afba-8eabfc54f524', 'en-2', options)
+namara.get('5885fce0-92c4-4acb-960f-82ce5a0a4650', 'en-1', options)
 ```
 
 ### Options
 
-All [Namara data options](http://namara.io/#/api) are supported.
+All [Namara data options](https://namara.io/#/api) are supported.
 
 **Basic options**
 
 ```python
 options = {
-  'select': 'p0,p1',
-  'where': 'p0 = 100 AND nearby(p3, 43.25, -123.1, 10km)',
+  'select': 'town,geometry',
+  'where': 'town = "TORONTO" AND nearby(geometry, 43.6, -79.4, 10km)',
   'offset': 0,
-  'limit': 10
+  'limit': 20
 }
 ```
 
@@ -92,5 +92,9 @@ options = {
 From command line:
 
 ```
-python -m unittest test_namara.TestNamara
+python -m unittest test_namara
 ```
+
+### License
+
+Apache License, Version 2.0

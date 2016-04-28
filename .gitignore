@@ -1,2 +1,5 @@
+build
+dist
+namara.egg-info
 *.pyc
 .idea

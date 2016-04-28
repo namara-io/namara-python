@@ -1,6 +1,5 @@
 from requests_futures.sessions import FuturesSession
 
-
 class Namara:
     def __init__(self, api_key, debug=False, host='api.namara.io', api_version='v0'):
         self.api_key = api_key
@@ -23,7 +22,7 @@ class Namara:
         return self.get_base_path(dataset, version) + '?api_key=' + self.api_key if not self.is_aggregation(options) else self.get_base_path(dataset, version) + '/aggregation?api_key=' + self.api_key
 
     def get_base_path(self, dataset, version):
-        return 'http://{0}/{1}/data_sets/{2}/data/{3}'.format(self.host, self.api_version, dataset, version)
+        return 'https://{0}/{1}/data_sets/{2}/data/{3}'.format(self.host, self.api_version, dataset, version)
 
     @staticmethod
     def is_aggregation(options):
