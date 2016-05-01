@@ -6,7 +6,7 @@ except ImportError:
 setup(
     name='namara',
     packages=['namara'],
-    version='0.1.0',
+    version='0.1.1',
     description='The official Python client for the Namara open data service',
     author='ThinkData Works',
     author_email='info@namara.io',
