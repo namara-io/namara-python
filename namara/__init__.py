@@ -11,7 +11,8 @@ class Namara:
 
     def get(self, dataset, version, options=None, callback=None):
         self.path = self.get_path(dataset, version, options)
-        if self.debug: print 'REQUEST: ' + self.get_path(dataset, version, options)
+        if self.debug:
+            print('REQUEST: ' + self.get_path(dataset, version, options))
 
         if callback is not None:
             FuturesSession(max_workers=4).get(self.path, params=options, headers=self.headers, background_callback=callback)
