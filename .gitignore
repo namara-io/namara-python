@@ -3,3 +3,5 @@ dist
 namara.egg-info
 *.pyc
 .idea
+.python-version
+testing.py
