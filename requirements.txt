@@ -1,2 +1,2 @@
-requests-futures==0.9.7
+requests-futures==0.9.9
 mock==1.0.1

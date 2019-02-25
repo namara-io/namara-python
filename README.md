@@ -1,7 +1,7 @@
 Namara
 ======
 
-The official python client for the Namara Open Data service. [namara.io](https://namara.io)
+The official python client for the Namara data collaboration service. [namara.io](https://namara.io)
 
 ## Installation
 
@@ -21,11 +21,12 @@ from namara import Namara
 namara = Namara({YOUR_API_KEY})
 ```
 
-You can also optionally enable debug mode:
+Available keyword arguments when initializing:
+- `api_key` (required)
+- `host` (optional, default: `'https://api.namara.io'`)
+- `api_version` (optional, default: `'v0'`)
+- `debug` (optional, default: `False`)
 
-```python
-namara = Namara({YOUR_API_KEY}, True)
-```
 
 ### Getting Data
 
@@ -40,13 +41,20 @@ response = namara.get('5885fce0-92c4-4acb-960f-82ce5a0a4650', 'en-1')
 Asynchronous:
 
 ```python
-def callback(sess, resp):
-    response = resp.json()
+def cb(response):
+  #...
 
-namara.get('5885fce0-92c4-4acb-960f-82ce5a0a4650', 'en-1', options=None, callback)
+namara.get('5885fce0-92c4-4acb-960f-82ce5a0a4650', 'en-1', options=None, callback=cb)
 ```
 
-Without a third options argument passed, this will return data with the Namara default offset (0) and limit (250) applied. To specify options, you can pass an options argument:
+To inspect the response:
+```python
+response.data # dataset data as JSON array of objects
+response.status_code # http status, 200 if successful
+response.url # api endpoint used to retrieve the response
+```
+
+Without a third `options` argument passed, `get` will return response data with the Namara default offset (0) and limit (250) applied. To specify options, you can pass an options argument:
 
 ```python
 options = {
@@ -57,11 +65,27 @@ options = {
 namara.get('5885fce0-92c4-4acb-960f-82ce5a0a4650', 'en-1', options)
 ```
 
+Available keyword arguments for `get` method:
+- `dataset` (required, data set id)
+- `version` (required, data set version)
+- `options` (optional)
+- `callback` (optional)
+
 ### Options
 
 All [Namara data options](https://namara.io/#/api) are supported.
 
-**Basic options**
+**Organization and Project options**
+In order to access a data set within the context of your Namara organization and/or project the following options are required. These options will allow you to access data that requires a subscription in order to use the full data set.
+
+```python
+options = {
+  'organizationId': '...',
+  'projectId': '...'
+}
+```
+
+**Query options**
 
 ```python
 options = {
