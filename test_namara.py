@@ -2,6 +2,9 @@ from unittest import TestCase
 from mock import Mock
 from namara import Namara
 
+import pandas as pd 
+
+
 class TestNamara(TestCase):
     subject = None
 
@@ -33,3 +36,13 @@ class TestNamara(TestCase):
 
     def test_valid_output_format(self): 
         self.assertRaises(ValueError, self.subject.get, self.dataset, self.version, output_format='invalid-format')
+
+    def test_valid_json_output(self): 
+        self.subject.get = Mock(return_value=[{u'mnr_region': u'NORTHWEST', u'facility_name': u'RESOLUTE FP CANADA INC.', u'facility_code': 1201, u'location': u'FORT FRANCES', u'facility_type': u'PULP'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'MANITOU FOREST PRODUCTS LTD.', u'facility_code': 1221, u'location': u'EMO', u'facility_type': u'SAWMILL'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'531322 ONTARIO LTD. O/A NICKEL LAKE LUMBER', u'facility_code': 1232, u'location': u'FORT FRANCES', u'facility_type': u'SAWMILL'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'AINSWORTH GP LTD.', u'facility_code': 1240, u'location': u'BARWICK', u'facility_type': u'COMPOSITE'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'RESOLUTE FP CANADA INC.', u'facility_code': 1301, u'location': u'IGNACE', u'facility_type': u'SAWMILL'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'E.&G. CUSTOM SAWING LTD.', u'facility_code': 1410, u'location': u'KENORA', u'facility_type': u'SAWMILL'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'WEYERHAEUSER COMPANY LTD.', u'facility_code': 1422, u'location': u'KENORA', u'facility_type': u'COMPOSITE'}])
+        response = self.subject.get(self.dataset, self.version, options={'operation': 'count(*)'}, output_format='json')
+        self.assertTrue(isinstance(response, list))
+
+    def test_valid_dataframe_ouput(self): 
+        self.subject.get = Mock(return_value=pd.DataFrame(data={'col1': [1, 2], 'col2': [3, 4]}))
+        response = self.subject.get(self.dataset, self.version, options={'operation': 'count(*)'}, output_format='dataframe')
+        self.assertTrue(isinstance(response, pd.DataFrame))
