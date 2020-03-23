@@ -71,6 +71,15 @@ Available keyword arguments for `get` method:
 - `options` (optional)
 - `callback` (optional)
 
+You can also specify the resulting outputs form, whether it's `json` or a Panda's `dataframe`, by passing the `output_format` param as follows: 
+
+```python
+df = namara.get('5885fce0-92c4-4acb-960f-82ce5a0a4650', 'en-1', options, output_format='dataframe')
+print(df.head()) #prints first 5 rows of the resulting table 
+```
+
+It is important to note that it currently only accepts the options `"json"` or `"dataframe"`, and it defaults to `"json"`. 
+
 ### Options
 
 All [Namara data options](https://namara.io/#/api) are supported.

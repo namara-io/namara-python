@@ -1,4 +1,6 @@
 from requests_futures.sessions import FuturesSession
+import logging
+import pandas as pd 
 
 class Namara:
     def __init__(self, api_key, debug=False, host='https://api.namara.io', api_version='v0'):
@@ -9,7 +11,7 @@ class Namara:
         self.base_path = '{0}/{1}'.format(self.host, self.api_version)
         self.headers = {'Content-Type': 'application/json', 'X-API-Key': api_key}
 
-    def get_project_items(self, organization, project, options=None, callback=None):
+    def get_project_items(self, organization, project, options=None, callback=None, output_format='json'):
         if not organization:
             raise ValueError('organization id is required')
         if not project:
@@ -19,12 +21,21 @@ class Namara:
 
         if callback is None:
             response = self.__session.get(url, params=options, headers=self.headers).result()
-            if self.debug: print('REQUEST: ' + response.url)
+            if self.debug: 
+                logging.debug('REQUEST URL: ' + response.url)
             response.data = self.__extract_datasets(response.json()) if response.ok else response.json()
+            if output_format is 'json': 
+                return response.data 
+            elif output_format is 'dataframe': 
+                df = pd.DataFrame(response.data)
+                return df
+            else: 
+                raise ValueError('`output_format` param must be "json" or "dataframe"')
             return response
 
         def response_hook(response, *args, **kwargs):
-            if self.debug: print('REQUEST: ' + response.url + '\n\n')
+            if self.debug: 
+                logging.debug('REQUEST URL: ' + response.url)
             response.data = self.__extract_datasets(response.json()) if response.ok else response.json()
             callback(response)
 
@@ -32,7 +43,10 @@ class Namara:
             'response': response_hook
         })
 
-    def get(self, dataset, version, options=None, callback=None):
+    def get(self, dataset, version, options=None, callback=None, output_format=None):
+        if output_format is None: 
+            output_format = 'json'
+
         path = '/data_sets/{0}/data/{1}'.format(dataset, version)
         if self.is_aggregation(options):
             path = '{0}/aggregation'.format(path)
@@ -41,12 +55,21 @@ class Namara:
 
         if callback is None:
             response = self.__session.get(url, params=options, headers=self.headers).result()
-            if self.debug: print('REQUEST: ' + response.url + '\n\n')
+            if self.debug: 
+                logging.debug('REQUEST URL: ' + response.url)
             response.data = response.json()
+            if output_format is 'json': 
+                return response.data
+            elif output_format is 'dataframe': 
+                df = pd.DataFrame(response.data)
+                return df
+            else: 
+                raise ValueError('`output_format` param must be "json" or "dataframe"')
             return response
 
         def response_hook(response, *args, **kwargs):
-            if self.debug: print('REQUEST: ' + response.url)
+            if self.debug: 
+                logging.debug('REQUEST URL: ' + response.url)
             response.data = response.json()
             callback(response)
 
