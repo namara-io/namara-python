@@ -36,8 +36,14 @@ class Namara:
         def response_hook(response, *args, **kwargs):
             if self.debug: 
                 logging.debug('REQUEST URL: ' + response.url)
-            response.data = self.__extract_datasets(response.json()) if response.ok else response.json()
-            callback(response)
+            response.data = response.json()
+            if output_format is 'json': 
+                callback(response.data)
+            elif output_format is 'dataframe': 
+                df = pd.DataFrame(response.data)
+                callback(df)
+            else: 
+                raise ValueError('`output_format` param must be "json" or "dataframe"')
 
         self.__session.get(url, params=options, headers=self.headers, hooks={
             'response': response_hook
@@ -71,9 +77,15 @@ class Namara:
             if self.debug: 
                 logging.debug('REQUEST URL: ' + response.url)
             response.data = response.json()
-            callback(response)
+            if output_format is 'json': 
+                callback(response.data)
+            elif output_format is 'dataframe': 
+                df = pd.DataFrame(response.data)
+                callback(df)
+            else: 
+                raise ValueError('`output_format` param must be "json" or "dataframe"')
 
-        self.__session.get(url, params=options, headers=self.headers, hooks={
+        res = self.__session.get(url, params=options, headers=self.headers, hooks={
             'response': response_hook,
         })
 
