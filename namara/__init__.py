@@ -1,5 +1,4 @@
 from requests_futures.sessions import FuturesSession
-import requests
 import time
 import logging
 import pandas as pd 
@@ -16,11 +15,8 @@ class Namara:
     def export_file_to_dataframe(self, dataset_id, organization_id, project_id, options=None):
         list_of_chunks = [] 
         url = self.get_url(f'/data_sets/{dataset_id}/data/export?geometry_format=wkt&organization_id={organization_id}&project_id={project_id}')
-        print('url: ', url)
         while True:
             response = self.__session.get(url, params=options, headers=self.headers).result().json()
-            print(response)
-            print(type(response))
             if self.debug: 
                 logging.debug('REQUEST URL: ' + response['url'])
             if response['message'] == 'Exported':
