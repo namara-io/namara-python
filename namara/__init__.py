@@ -1,10 +1,12 @@
 import logging
+import shutil
 import time
 
 import pandas as pd
+import requests
 from requests_futures.sessions import FuturesSession
+from tenacity import retry, stop, wait
 
-from tenacity import retry, wait, stop 
 
 class Namara:
     def __init__(self, api_key, debug=False, host='https://api.namara.io', api_version='v0'):
@@ -29,6 +31,15 @@ class Namara:
                 for chunk in pd.read_csv(response['url'], chunksize=100):
                     list_of_chunks.append(chunk)
                 return pd.concat(list_of_chunks)
+            elif output_format == 'csv': 
+                #stream to local csv file
+                local_filename = response['url'].split('/')[-1].split('?')[0] 
+                with requests.get(response['url'], stream=True) as r:
+                    with open(local_filename, 'wb') as f:
+                        shutil.copyfileobj(r.raw, f)
+                return local_filename
+            else: 
+                raise Exception('`output_format` param must be "csv", "dataframe", or "url" (default)')
         elif 'message' in response and response['message'] == 'Failed':
             raise Exception(f"Could not export dataset {dataset_id}")
         else: 

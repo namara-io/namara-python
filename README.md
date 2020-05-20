@@ -80,6 +80,14 @@ print(df.head()) #prints first 5 rows of the resulting table
 
 It is important to note that it currently only accepts the options `"json"` or `"dataframe"`, and it defaults to `"json"`. 
 
+
+You can also `export` the entire dataset (with no limits to the amount of rows) by calling the following `export` method: 
+```python
+df = namara.export(<dataset_id>, <organization_id>, <project_id>, output_format='dataframe')
+df.head()
+```
+The values of `export_format` are `'url'` (a URL to the file), `'dataframe'` (a Pandas dataframe), or `'csv'` (a local csv file).
+
 ### Options
 
 All [Namara data options](https://namara.io/#/api) are supported.
