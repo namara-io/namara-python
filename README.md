@@ -35,7 +35,7 @@ To make a basic request to the Namara API you can call `get` on your instantiate
 Synchronous:
 
 ```python
-response = namara.get('5885fce0-92c4-4acb-960f-82ce5a0a4650', 'en-1')
+response = namara.get('my-dataset-id', 'my-dataset-version')
 ```
 
 Asynchronous:
@@ -44,7 +44,7 @@ Asynchronous:
 def cb(response):
   #...
 
-namara.get('5885fce0-92c4-4acb-960f-82ce5a0a4650', 'en-1', options=None, callback=cb)
+namara.get('my-dataset-id', 'my-dataset-version', options=None, callback=cb)
 ```
 
 To inspect the response:
@@ -62,7 +62,7 @@ options = {
   'limit': 150
 };
 
-namara.get('5885fce0-92c4-4acb-960f-82ce5a0a4650', 'en-1', options)
+namara.get('my-dataset-id', 'my-dataset-version', options)
 ```
 
 Available keyword arguments for `get` method:
@@ -74,11 +74,28 @@ Available keyword arguments for `get` method:
 You can also specify the resulting outputs form, whether it's `json` or a Panda's `dataframe`, by passing the `output_format` param as follows: 
 
 ```python
-df = namara.get('5885fce0-92c4-4acb-960f-82ce5a0a4650', 'en-1', options, output_format='dataframe')
+df = namara.get('my-dataset-id', 'my-dataset-version', options, output_format='dataframe')
 print(df.head()) #prints first 5 rows of the resulting table 
 ```
 
 It is important to note that it currently only accepts the options `"json"` or `"dataframe"`, and it defaults to `"json"`. 
+
+
+You can also `export` the entire dataset (with no limits to the amount of rows) by calling the following `export` method: 
+```python
+df = namara.export('my_dataset_id', 'my_organization_id', output_format='dataframe')
+df.head()
+```
+The values of `output_format` are `'url'` (a URL to the file), `'dataframe'` (a Pandas dataframe), or `'csv'` (a local csv file).
+
+**Note:** If you set `output_format='csv'` you must also specify `output_file`, which takes a [file object](https://docs.python.org/3/glossary.html#term-file-object)
+
+Example: 
+```python
+with open('my-local-file.csv', 'wb') as f: #make sure to use 'wb' 
+    #this will export the dataset to 'my-local-file.csv' 
+    namara.export('my-dataset-id', 'my-org-id', output_format='csv', output_file=f) 
+```
 
 ### Options
 

@@ -1,6 +1,11 @@
-from requests_futures.sessions import FuturesSession
 import logging
-import pandas as pd 
+import shutil
+import time
+
+import pandas as pd
+import requests
+from requests_futures.sessions import FuturesSession
+
 
 class Namara:
     def __init__(self, api_key, debug=False, host='https://api.namara.io', api_version='v0'):
@@ -10,7 +15,34 @@ class Namara:
         self.api_version = api_version
         self.base_path = '{0}/{1}'.format(self.host, self.api_version)
         self.headers = {'Content-Type': 'application/json', 'X-API-Key': api_key}
-
+    
+    def export(self, dataset_id, organization_id, options=None, output_format='url', output_file=None):
+        url = self.get_url(f'/data_sets/{dataset_id}/data/export?geometry_format=wkt&organization_id={organization_id}')
+        while True: 
+            response = self.__session.get(url, params=options, headers=self.headers).result().json()
+            if self.debug: 
+                logging.debug('Response Object: ' + response)
+            if 'message' in response and response['message'] == 'Exported':
+                if output_format == 'url': 
+                    return response['url']
+                elif output_format == 'dataframe': 
+                    list_of_chunks = [] 
+                    for chunk in pd.read_csv(response['url'], chunksize=100):
+                        list_of_chunks.append(chunk)
+                    return pd.concat(list_of_chunks)
+                elif output_format == 'csv': 
+                    with requests.get(response['url'], stream=True) as r:
+                        shutil.copyfileobj(r.raw, output_file)
+                    return
+                else: 
+                    raise Exception('`output_format` param must be "csv", "dataframe", or "url" (default)')
+            elif 'message' in response and response['message'] == 'Failed':
+                raise Exception(f"Could not export dataset {dataset_id}")
+            elif 'message' in response and (response['message'] == 'Pending' or response['message'] == 'Exporting'): 
+                time.sleep(5) 
+            else: 
+                raise Exception(response['error']) 
+ 
     def get_project_items(self, organization, project, options=None, callback=None, output_format='json'):
         if not organization:
             raise ValueError('organization id is required')
@@ -60,18 +92,15 @@ class Namara:
         url = self.get_url(path)
 
         if callback is None:
-            response = self.__session.get(url, params=options, headers=self.headers).result()
+            response = self.__session.get(url, params=options, headers=self.headers).result().json()
             if self.debug: 
                 logging.debug('REQUEST URL: ' + response.url)
-            response.data = response.json()
             if output_format is 'json': 
-                return response.data
+                return response
             elif output_format is 'dataframe': 
-                df = pd.DataFrame(response.data)
-                return df
+                return pd.DataFrame(response)
             else: 
                 raise ValueError('`output_format` param must be "json" or "dataframe"')
-            return response
 
         def response_hook(response, *args, **kwargs):
             if self.debug: 
@@ -85,7 +114,7 @@ class Namara:
             else: 
                 raise ValueError('`output_format` param must be "json" or "dataframe"')
 
-        res = self.__session.get(url, params=options, headers=self.headers, hooks={
+        self.__session.get(url, params=options, headers=self.headers, hooks={
             'response': response_hook,
         })
 

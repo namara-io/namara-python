@@ -1,8 +1,9 @@
 from unittest import TestCase
-from mock import Mock
-from namara import Namara
 
-import pandas as pd 
+import pandas as pd
+from mock import Mock
+
+from namara import Namara
 
 
 class TestNamara(TestCase):
@@ -10,8 +11,10 @@ class TestNamara(TestCase):
 
     def setUp(self):
         self.subject = Namara('myapikey')
-        self.dataset = '18b854e3-66bd-4a00-afba-8eabfc54f524'
-        self.version = 'en-2'
+        self.dataset = 'dataset' 
+        self.version = 'version' 
+        self.organization_id = 'organization_id'
+        self.project_id = 'project_id'
 
     def test_get_url(self): 
         path = self.subject.get_url('/organizations/{0}/projects/{1}/data_sets'.format('organization', 'project'))
@@ -42,7 +45,17 @@ class TestNamara(TestCase):
         response = self.subject.get(self.dataset, self.version, options={'operation': 'count(*)'}, output_format='json')
         self.assertTrue(isinstance(response, list))
 
-    def test_valid_dataframe_ouput(self): 
+    def test_valid_get_dataframe_ouput(self): 
         self.subject.get = Mock(return_value=pd.DataFrame(data={'col1': [1, 2], 'col2': [3, 4]}))
         response = self.subject.get(self.dataset, self.version, options={'operation': 'count(*)'}, output_format='dataframe')
         self.assertTrue(isinstance(response, pd.DataFrame))
+
+    def test_valid_export_dataframe_ouput(self): 
+        self.subject.export = Mock(return_value=pd.DataFrame(data={'col1': [1, 2], 'col2': [3, 4]}))
+        response = self.subject.export(self.dataset, self.organization_id, self.project_id, output_format='dataframe')
+        self.assertTrue(isinstance(response, pd.DataFrame))
+
+    def test_valid_export_url_ouput(self): 
+        self.subject.export = Mock(return_value='https://storage.googleapis.com/namara/exports/x-2233444/file-name.csv')
+        response = self.subject.export(self.dataset, self.organization_id, self.project_id)
+        self.assertTrue(isinstance(response, str))
