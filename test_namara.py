@@ -11,8 +11,10 @@ class TestNamara(TestCase):
 
     def setUp(self):
         self.subject = Namara('myapikey')
-        self.dataset = '18b854e3-66bd-4a00-afba-8eabfc54f524'
-        self.version = 'en-2'
+        self.dataset = 'dataset' 
+        self.version = 'version' 
+        self.organization_id = 'organization_id'
+        self.project_id = 'project_id'
 
     def test_get_url(self): 
         path = self.subject.get_url('/organizations/{0}/projects/{1}/data_sets'.format('organization', 'project'))
@@ -24,7 +26,9 @@ class TestNamara(TestCase):
 
     def test_get_where_field_value_greater_than_1200(self):
         self.subject.get = Mock(return_value=[{u'mnr_region': u'NORTHWEST', u'facility_name': u'RESOLUTE FP CANADA INC.', u'facility_code': 1201, u'location': u'FORT FRANCES', u'facility_type': u'PULP'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'MANITOU FOREST PRODUCTS LTD.', u'facility_code': 1221, u'location': u'EMO', u'facility_type': u'SAWMILL'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'531322 ONTARIO LTD. O/A NICKEL LAKE LUMBER', u'facility_code': 1232, u'location': u'FORT FRANCES', u'facility_type': u'SAWMILL'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'AINSWORTH GP LTD.', u'facility_code': 1240, u'location': u'BARWICK', u'facility_type': u'COMPOSITE'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'RESOLUTE FP CANADA INC.', u'facility_code': 1301, u'location': u'IGNACE', u'facility_type': u'SAWMILL'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'E.&G. CUSTOM SAWING LTD.', u'facility_code': 1410, u'location': u'KENORA', u'facility_type': u'SAWMILL'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'WEYERHAEUSER COMPANY LTD.', u'facility_code': 1422, u'location': u'KENORA', u'facility_type': u'COMPOSITE'}])
+        # print(self.subject.get)
         response = self.subject.get(self.dataset, self.version, options={'where': 'facility_code > 1200'})
+        # print(response)
         for res in response:
             if res.get('facility_code') <= 1200:
                 self.assertTrue(False)
@@ -47,3 +51,13 @@ class TestNamara(TestCase):
         self.subject.get = Mock(return_value=pd.DataFrame(data={'col1': [1, 2], 'col2': [3, 4]}))
         response = self.subject.get(self.dataset, self.version, options={'operation': 'count(*)'}, output_format='dataframe')
         self.assertTrue(isinstance(response, pd.DataFrame))
+
+    def test_valid_export_dataframe_ouput(self): 
+        self.subject.export = Mock(return_value=pd.DataFrame(data={'col1': [1, 2], 'col2': [3, 4]}))
+        response = self.subject.export(self.dataset, self.organization_id, self.project_id, output_format='dataframe')
+        self.assertTrue(isinstance(response, pd.DataFrame))
+
+    def test_valid_export_url_ouput(self): 
+        self.subject.export = Mock(return_value='https://storage.googleapis.com/namara/exports/x-2233444/file-name.csv')
+        response = self.subject.export(self.dataset, self.organization_id, self.project_id)
+        self.assertTrue(isinstance(response, str))
