@@ -38,7 +38,7 @@ class Namara:
                     raise Exception('`output_format` param must be "csv", "dataframe", or "url" (default)')
             elif 'message' in response and response['message'] == 'Failed':
                 raise Exception(f"Could not export dataset {dataset_id}")
-            elif 'message' in response and response['message'] == 'Pending': 
+            elif 'message' in response and (response['message'] == 'Pending' or response['message'] == 'Exporting'): 
                 time.sleep(5) 
             else: 
                 raise Exception(response['error']) 
