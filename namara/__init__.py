@@ -1,4 +1,6 @@
 from requests_futures.sessions import FuturesSession
+import requests
+import time
 import logging
 import pandas as pd 
 
@@ -10,7 +12,26 @@ class Namara:
         self.api_version = api_version
         self.base_path = '{0}/{1}'.format(self.host, self.api_version)
         self.headers = {'Content-Type': 'application/json', 'X-API-Key': api_key}
-
+    
+    def export_file_to_dataframe(self, dataset_id, organization_id, project_id, options=None):
+        list_of_chunks = [] 
+        url = self.get_url(f'/data_sets/{dataset_id}/data/export?geometry_format=wkt&organization_id={organization_id}&project_id={project_id}')
+        print('url: ', url)
+        while True:
+            response = self.__session.get(url, params=options, headers=self.headers).result().json()
+            print(response)
+            print(type(response))
+            if self.debug: 
+                logging.debug('REQUEST URL: ' + response['url'])
+            if response['message'] == 'Exported':
+                for chunk in pd.read_csv(response['url'], chunksize=100):
+                    list_of_chunks.append(chunk)
+                return pd.concat(list_of_chunks)
+            elif response['message'] == 'Failed':
+                raise Exception(f"Could not export dataset {dataset_id}")
+            else:
+                time.sleep(5) # Wait 5 seconds and try again
+ 
     def get_project_items(self, organization, project, options=None, callback=None, output_format='json'):
         if not organization:
             raise ValueError('organization id is required')
@@ -85,7 +106,7 @@ class Namara:
             else: 
                 raise ValueError('`output_format` param must be "json" or "dataframe"')
 
-        res = self.__session.get(url, params=options, headers=self.headers, hooks={
+        self.__session.get(url, params=options, headers=self.headers, hooks={
             'response': response_hook,
         })
 
@@ -109,3 +130,13 @@ class Namara:
         return list(map(lambda ds: (ds['id'], self.__extract_latest_version(ds)), data['data_sets']))
 
     __session = FuturesSession(max_workers=4)
+
+
+# def main(): 
+#     client = Namara('346d9035f9c3293ccdf092e1debadcd3774a148f82f551b4fe947e59a68b5392')
+
+#     df = client.export_file_to_dataframe('a6113504-efe4-490a-99cf-4f9298abbf3b', '5e2078861fe3bb421310a0ba', '5e2078861fe3bb421310a0bc')
+
+#     print(df.head()) 
+
+# main() 

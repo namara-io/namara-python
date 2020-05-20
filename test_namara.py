@@ -12,6 +12,8 @@ class TestNamara(TestCase):
         self.subject = Namara('myapikey')
         self.dataset = '18b854e3-66bd-4a00-afba-8eabfc54f524'
         self.version = 'en-2'
+        self.organization_id = '5e207886hd74f3bb421310a0ba'
+        self.project_id = '784dn886hjfj88f3bb4295jfna0b6'
 
     def test_get_url(self): 
         path = self.subject.get_url('/organizations/{0}/projects/{1}/data_sets'.format('organization', 'project'))
@@ -42,7 +44,7 @@ class TestNamara(TestCase):
         response = self.subject.get(self.dataset, self.version, options={'operation': 'count(*)'}, output_format='json')
         self.assertTrue(isinstance(response, list))
 
-    def test_valid_dataframe_ouput(self): 
+    def test_valid_get_dataframe_ouput(self): 
         self.subject.get = Mock(return_value=pd.DataFrame(data={'col1': [1, 2], 'col2': [3, 4]}))
         response = self.subject.get(self.dataset, self.version, options={'operation': 'count(*)'}, output_format='dataframe')
         self.assertTrue(isinstance(response, pd.DataFrame))
