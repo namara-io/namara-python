@@ -31,12 +31,8 @@ class Namara:
                         list_of_chunks.append(chunk)
                     return pd.concat(list_of_chunks)
                 elif output_format == 'csv': 
-                    #stream to local csv file
-                    # local_filename = response['url'].split('/')[-1].split('?')[0] 
                     with requests.get(response['url'], stream=True) as r:
                         shutil.copyfileobj(r.raw, output_file)
-                        # with open(local_filename, 'wb') as f:
-                        #     shutil.copyfileobj(r.raw, f)
                     return
                 else: 
                     raise Exception('`output_format` param must be "csv", "dataframe", or "url" (default)')
@@ -142,11 +138,3 @@ class Namara:
         return list(map(lambda ds: (ds['id'], self.__extract_latest_version(ds)), data['data_sets']))
 
     __session = FuturesSession(max_workers=4)
-
-
-def main(): 
-    client = Namara('346d9035f9c3293ccdf092e1debadcd3774a148f82f551b4fe947e59a68b5392')
-    with open('test-file.csv', 'wb') as f: 
-        client.export('a6113504-efe4-490a-99cf-4f9298abbf3b', '5e2078861fe3bb421310a0ba', output_format='csv', output_file=f)
-
-main() 
