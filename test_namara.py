@@ -26,9 +26,7 @@ class TestNamara(TestCase):
 
     def test_get_where_field_value_greater_than_1200(self):
         self.subject.get = Mock(return_value=[{u'mnr_region': u'NORTHWEST', u'facility_name': u'RESOLUTE FP CANADA INC.', u'facility_code': 1201, u'location': u'FORT FRANCES', u'facility_type': u'PULP'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'MANITOU FOREST PRODUCTS LTD.', u'facility_code': 1221, u'location': u'EMO', u'facility_type': u'SAWMILL'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'531322 ONTARIO LTD. O/A NICKEL LAKE LUMBER', u'facility_code': 1232, u'location': u'FORT FRANCES', u'facility_type': u'SAWMILL'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'AINSWORTH GP LTD.', u'facility_code': 1240, u'location': u'BARWICK', u'facility_type': u'COMPOSITE'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'RESOLUTE FP CANADA INC.', u'facility_code': 1301, u'location': u'IGNACE', u'facility_type': u'SAWMILL'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'E.&G. CUSTOM SAWING LTD.', u'facility_code': 1410, u'location': u'KENORA', u'facility_type': u'SAWMILL'}, {u'mnr_region': u'NORTHWEST', u'facility_name': u'WEYERHAEUSER COMPANY LTD.', u'facility_code': 1422, u'location': u'KENORA', u'facility_type': u'COMPOSITE'}])
-        # print(self.subject.get)
         response = self.subject.get(self.dataset, self.version, options={'where': 'facility_code > 1200'})
-        # print(response)
         for res in response:
             if res.get('facility_code') <= 1200:
                 self.assertTrue(False)
