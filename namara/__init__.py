@@ -1,7 +1,9 @@
-from requests_futures.sessions import FuturesSession
-import time
 import logging
-import pandas as pd 
+import time
+
+import pandas as pd
+from requests_futures.sessions import FuturesSession
+
 
 class Namara:
     def __init__(self, api_key, debug=False, host='https://api.namara.io', api_version='v0'):
@@ -126,13 +128,3 @@ class Namara:
         return list(map(lambda ds: (ds['id'], self.__extract_latest_version(ds)), data['data_sets']))
 
     __session = FuturesSession(max_workers=4)
-
-
-# def main(): 
-#     client = Namara('346d9035f9c3293ccdf092e1debadcd3774a148f82f551b4fe947e59a68b5392')
-
-#     df = client.export_file_to_dataframe('a6113504-efe4-490a-99cf-4f9298abbf3b', '5e2078861fe3bb421310a0ba', '5e2078861fe3bb421310a0bc')
-
-#     print(df.head()) 
-
-# main() 
