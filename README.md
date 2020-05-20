@@ -88,6 +88,15 @@ df.head()
 ```
 The values of `output_format` are `'url'` (a URL to the file), `'dataframe'` (a Pandas dataframe), or `'csv'` (a local csv file).
 
+**Note:** If you set `output_format='csv'` you must also specify `output_file`, which takes a [file object](https://docs.python.org/3/glossary.html#term-file-object)
+
+Example: 
+```python
+with open('my-local-file.csv', 'wb') as f: #make sure to use 'wb' 
+    #this will export the dataset to 'my-local-file.csv' 
+    namara.export('my-dataset-id', 'my-org-id', output_format='csv', output_file=f) 
+```
+
 ### Options
 
 All [Namara data options](https://namara.io/#/api) are supported.

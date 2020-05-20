@@ -13,6 +13,6 @@ setup(
     license='Apache-2.0',
     url='https://github.com/namara-io/namara-python',
     keywords=['namara','open data','api','canada','us','government','independent'],
-    install_requires=['requests-futures==0.9.9', 'pandas', 'logging', 'time', 'tenacity==6.2.0', 'requests', 'shutil'],
+    install_requires=['requests-futures==0.9.9', 'pandas', 'logging', 'time', 'requests', 'shutil'],
     classifiers=[]
 )

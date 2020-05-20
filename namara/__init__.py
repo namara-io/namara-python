@@ -5,7 +5,6 @@ import time
 import pandas as pd
 import requests
 from requests_futures.sessions import FuturesSession
-from tenacity import retry, stop, wait
 
 
 class Namara:
@@ -17,33 +16,36 @@ class Namara:
         self.base_path = '{0}/{1}'.format(self.host, self.api_version)
         self.headers = {'Content-Type': 'application/json', 'X-API-Key': api_key}
     
-    @retry(wait=wait.wait_exponential(multiplier=1, min=4, max=10), stop=stop.stop_after_attempt(5))
-    def export(self, dataset_id, organization_id, project_id, options=None, output_format='url'):
-        url = self.get_url(f'/data_sets/{dataset_id}/data/export?geometry_format=wkt&organization_id={organization_id}&project_id={project_id}')
-        response = self.__session.get(url, params=options, headers=self.headers).result().json()
-        if self.debug: 
-            logging.debug('Response Object: ' + response)
-        if 'message' in response and response['message'] == 'Exported':
-            if output_format == 'url': 
-                return response['url']
-            elif output_format == 'dataframe': 
-                list_of_chunks = [] 
-                for chunk in pd.read_csv(response['url'], chunksize=100):
-                    list_of_chunks.append(chunk)
-                return pd.concat(list_of_chunks)
-            elif output_format == 'csv': 
-                #stream to local csv file
-                local_filename = response['url'].split('/')[-1].split('?')[0] 
-                with requests.get(response['url'], stream=True) as r:
-                    with open(local_filename, 'wb') as f:
-                        shutil.copyfileobj(r.raw, f)
-                return local_filename
+    def export(self, dataset_id, organization_id, options=None, output_format='url', output_file=None):
+        url = self.get_url(f'/data_sets/{dataset_id}/data/export?geometry_format=wkt&organization_id={organization_id}')
+        while True: 
+            response = self.__session.get(url, params=options, headers=self.headers).result().json()
+            if self.debug: 
+                logging.debug('Response Object: ' + response)
+            if 'message' in response and response['message'] == 'Exported':
+                if output_format == 'url': 
+                    return response['url']
+                elif output_format == 'dataframe': 
+                    list_of_chunks = [] 
+                    for chunk in pd.read_csv(response['url'], chunksize=100):
+                        list_of_chunks.append(chunk)
+                    return pd.concat(list_of_chunks)
+                elif output_format == 'csv': 
+                    #stream to local csv file
+                    # local_filename = response['url'].split('/')[-1].split('?')[0] 
+                    with requests.get(response['url'], stream=True) as r:
+                        shutil.copyfileobj(r.raw, output_file)
+                        # with open(local_filename, 'wb') as f:
+                        #     shutil.copyfileobj(r.raw, f)
+                    return
+                else: 
+                    raise Exception('`output_format` param must be "csv", "dataframe", or "url" (default)')
+            elif 'message' in response and response['message'] == 'Failed':
+                raise Exception(f"Could not export dataset {dataset_id}")
+            elif 'message' in response and response['message'] == 'Pending': 
+                time.sleep(5) 
             else: 
-                raise Exception('`output_format` param must be "csv", "dataframe", or "url" (default)')
-        elif 'message' in response and response['message'] == 'Failed':
-            raise Exception(f"Could not export dataset {dataset_id}")
-        else: 
-            raise Exception(response['error']) 
+                raise Exception(response['error']) 
  
     def get_project_items(self, organization, project, options=None, callback=None, output_format='json'):
         if not organization:
@@ -140,3 +142,11 @@ class Namara:
         return list(map(lambda ds: (ds['id'], self.__extract_latest_version(ds)), data['data_sets']))
 
     __session = FuturesSession(max_workers=4)
+
+
+def main(): 
+    client = Namara('346d9035f9c3293ccdf092e1debadcd3774a148f82f551b4fe947e59a68b5392')
+    with open('test-file.csv', 'wb') as f: 
+        client.export('a6113504-efe4-490a-99cf-4f9298abbf3b', '5e2078861fe3bb421310a0ba', output_format='csv', output_file=f)
+
+main() 
