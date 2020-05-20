@@ -86,7 +86,7 @@ You can also `export` the entire dataset (with no limits to the amount of rows) 
 df = namara.export(<dataset_id>, <organization_id>, <project_id>, output_format='dataframe')
 df.head()
 ```
-The values of `export_format` are `'url'` (a URL to the file), `'dataframe'` (a Pandas dataframe), or `'csv'` (a local csv file).
+The values of `output_format` are `'url'` (a URL to the file), `'dataframe'` (a Pandas dataframe), or `'csv'` (a local csv file).
 
 ### Options
 
